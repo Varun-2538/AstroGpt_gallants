@@ -15,7 +15,7 @@ function AstrologyForm({ setResult }) {
     const formData = {
       name,
       dateOfBirth: dob,
-      timeOfBirth: tob, // Supports HH:MM:SS format
+      timeOfBirth: tob,
       city,
       state,
     };
@@ -34,7 +34,16 @@ function AstrologyForm({ setResult }) {
       }
 
       const data = await response.json();
-      setResult(data.kundali); // Pass result to App through setResult
+      setResult(data.kundali);
+      
+      // Smooth scroll to chart section
+      const chartSection = document.getElementById('chart');
+      if (chartSection) {
+        chartSection.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
     } catch (error) {
       console.error("Error submitting form data:", error);
     }
@@ -53,7 +62,7 @@ function AstrologyForm({ setResult }) {
         {
           method: "GET",
           headers: {
-            "X-RapidAPI-Key": import.meta.env.VITE_RAPIDAPI_KEY, // Replace with your API key
+            "X-RapidAPI-Key": import.meta.env.VITE_RAPIDAPI_KEY,
             "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
           },
         }
@@ -129,7 +138,7 @@ function AstrologyForm({ setResult }) {
         </label>
         <input
           type="time"
-          step="1" // Enables seconds input
+          step="1"
           value={tob}
           onChange={(e) => setTob(e.target.value)}
           required

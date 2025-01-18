@@ -32,14 +32,14 @@ function NavBar() {
 
       {/* Desktop Links (right side) */}
       <div className="hidden md:flex items-center space-x-6">
-        <a href="#link1" className="hover:text-gray-200 font-serif transition-colors">
-          Link One
+        <a href="#link1" className="hover:text-purple-800 font-serif transition-colors">
+          Pooja
         </a>
-        <a href="#link2" className="hover:text-gray-200 font-serif transition-colors">
-          Link Two
+        <a href="#link2" className="hover:text-purple-800 font-serif transition-colors">
+          Horoscope
         </a>
-        <a href="#link3" className="hover:text-gray-200 font-serif transition-colors">
-          Link Three
+        <a href="#link3" className="hover:text-purple-800 font-serif transition-colors">
+          Pooja
         </a>
       </div>
 
