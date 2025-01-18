@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function AstrologyForm({ setResult }) {
   const [name, setName] = useState("");
@@ -6,6 +6,8 @@ function AstrologyForm({ setResult }) {
   const [tob, setTob] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
+  const [citySuggestions, setCitySuggestions] = useState([]);
+  const [stateSuggestions, setStateSuggestions] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,6 +38,50 @@ function AstrologyForm({ setResult }) {
     } catch (error) {
       console.error("Error submitting form data:", error);
     }
+  };
+
+  // Fetch city suggestions dynamically based on user input
+  const fetchCitySuggestions = async (input) => {
+    if (input.trim() === "") {
+      setCitySuggestions([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${input}&limit=5`,
+        {
+          method: "GET",
+          headers: {
+            "X-RapidAPI-Key": import.meta.env.VITE_RAPIDAPI_KEY, // Replace with your API key
+            "X-RapidAPI-Host": "wft-geo-db.p.rapidapi.com",
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const suggestions = data.data.map((city) => ({
+          cityName: city.name,
+          stateName: city.region,
+        }));
+        setCitySuggestions(suggestions);
+      }
+    } catch (error) {
+      console.error("Error fetching city suggestions:", error);
+    }
+  };
+
+  // Handle city input change and fetch suggestions
+  const handleCityChange = (e) => {
+    const input = e.target.value;
+    setCity(input);
+    fetchCitySuggestions(input);
+  };
+
+  // Handle state input change manually
+  const handleStateChange = (e) => {
+    setState(e.target.value);
   };
 
   return (
@@ -99,11 +145,28 @@ function AstrologyForm({ setResult }) {
           <input
             type="text"
             value={city}
-            onChange={(e) => setCity(e.target.value)}
+            onChange={handleCityChange}
             required
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300"
             placeholder="Enter your city"
           />
+          {citySuggestions.length > 0 && (
+            <ul className="bg-white border border-gray-300 rounded-lg shadow-lg mt-2 max-h-40 overflow-y-auto">
+              {citySuggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  className="px-4 py-2 cursor-pointer hover:bg-teal-100"
+                  onClick={() => {
+                    setCity(suggestion.cityName);
+                    setState(suggestion.stateName);
+                    setCitySuggestions([]);
+                  }}
+                >
+                  {suggestion.cityName}, {suggestion.stateName}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="w-1/2">
@@ -113,7 +176,7 @@ function AstrologyForm({ setResult }) {
           <input
             type="text"
             value={state}
-            onChange={(e) => setState(e.target.value)}
+            onChange={handleStateChange}
             required
             className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300"
             placeholder="Enter your state"

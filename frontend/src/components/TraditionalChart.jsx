@@ -49,7 +49,7 @@ const TraditionalChart = ({ result }) => {
             x={x}
             y={parseFloat(y) - 4 + "%"} // Position above planets
             textAnchor="middle"
-            fontSize="1.5" // Smaller font size for Rashi name
+            fontSize="2" // Smaller font size for Rashi name
             fill="blue"
           >
             {houseRashis[house]}
