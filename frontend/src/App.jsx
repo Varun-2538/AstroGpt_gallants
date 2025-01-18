@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Homepage from "./components/Homepage";
 import TraditionalChart from "./components/TraditionalChart";
+import Analysis from "./components/analysis";
 
 function App() {
   const [result, setResult] = useState(null); // State to hold Kundali result
@@ -18,6 +19,7 @@ function App() {
             <p className="text-white text-center pt-8">No data available</p>
           )}
         </section>
+        <Analysis />
       </div>
     </>
   );
