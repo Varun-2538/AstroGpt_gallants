@@ -1,19 +1,13 @@
-// TraditionalChart.jsx
 import React from "react";
-import PropTypes from "prop-types";
 
+const TraditionalChart = ({ result }) => {
+  if (!result) return null;
 
-function TraditionalChart({ kundali }) {
-  // If no kundali data, render nothing
-  if (!kundali) return null;
-
-  // Extract house_rashis and planet data
-  const houseRashis = kundali.house_rashis; 
-  const planetHousePositions = kundali.planet_house_positions || {};
-
-  // Map planets to their houses
+  const houseRashis = result.house_rashis; // Rashi names for each house
   const planetHouseMapping = {};
-  Object.entries(planetHousePositions).forEach(([planet, data]) => {
+
+  // Map planets to houses
+  Object.entries(result.planet_house_positions).forEach(([planet, data]) => {
     const house = data.house;
     if (!planetHouseMapping[house]) {
       planetHouseMapping[house] = [];
@@ -21,7 +15,6 @@ function TraditionalChart({ kundali }) {
     planetHouseMapping[house].push(planet);
   });
 
-  // Coordinates for placing text in each house
   const houseCoordinates = {
     1: { x: "50%", y: "25%" },
     2: { x: "27%", y: "16%" },
@@ -38,52 +31,35 @@ function TraditionalChart({ kundali }) {
   };
 
   return (
-    <svg
-      viewBox="0 0 100 100"
-      className="w-full h-full"
-      style={{ maxWidth: "400px", margin: "auto" }}
-    >
+    <svg viewBox="0 0 100 100" className="w-full h-full" style={{ maxWidth: "400px", margin: "auto" }}>
       {/* Outer Square */}
-      <rect
-        x="5"
-        y="5"
-        width="90"
-        height="90"
-        fill="none"
-        stroke="black"
-        strokeWidth="0.5"
-      />
+      <rect x="5" y="5" width="90" height="90" fill="none" stroke="black" strokeWidth="0.5" />
       {/* Diamond Inside */}
-      <polygon
-        points="50,5 95,50 50,95 5,50"
-        fill="none"
-        stroke="black"
-        strokeWidth="0.5"
-      />
+      <polygon points="50,5 95,50 50,95 5,50" fill="none" stroke="black" strokeWidth="0.5" />
       {/* Rotated Cross */}
       <line x1="5" y1="5" x2="95" y2="95" stroke="black" strokeWidth="0.5" />
       <line x1="5" y1="95" x2="95" y2="5" stroke="black" strokeWidth="0.5" />
 
-      {/* House text and planet labels */}
+      {/* House Numbers, Rashi Names, and Planet Data */}
       {Object.entries(houseCoordinates).map(([house, { x, y }]) => (
         <g key={house}>
-          {/* Rashi name (small text, blue) */}
+          {/* Rashi Name (Small Text) */}
           <text
             x={x}
-            y={`${parseFloat(y) - 4}%`} // shift up a bit
+            y={parseFloat(y) - 4 + "%"} // Position above planets
             textAnchor="middle"
-            fontSize="1.5"
+            fontSize="1.5" // Smaller font size for Rashi name
             fill="blue"
           >
-            {houseRashis?.[house]}
+            {houseRashis[house]}
           </text>
 
-          {/* Planet names (larger text, black) */}
+          {/* Planet Names (Large Text) */}
           <text
             x={x}
             y={y}
             textAnchor="middle"
-            fontSize="2.5"
+            fontSize="2.5" // Larger font size for Planet names
             fill="black"
           >
             {planetHouseMapping[house]?.join(", ") || ""}
@@ -92,17 +68,6 @@ function TraditionalChart({ kundali }) {
       ))}
     </svg>
   );
-}
-
-TraditionalChart.propTypes = {
-  kundali: PropTypes.shape({
-    house_rashis: PropTypes.object, // or a more specific shape
-    planet_house_positions: PropTypes.objectOf(
-      PropTypes.shape({
-        house: PropTypes.number,
-      })
-    ),
-  }),
 };
 
 export default TraditionalChart;
