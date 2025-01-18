@@ -3,6 +3,7 @@ import React, { useState } from "react";
 function AstrologyForm() {
   const [name, setName] = useState("");
   const [dob, setDob] = useState("");
+  // Time input includes seconds with `step="1"`
   const [tob, setTob] = useState("");
   const [gender, setGender] = useState("");
   const [state, setState] = useState("");
@@ -87,17 +88,18 @@ function AstrologyForm() {
           />
         </div>
 
-        {/* Time of Birth Field */}
+        {/* Time of Birth Field (with seconds) */}
         <div className="mb-4">
           <label
             htmlFor="tob"
             className="block text-gray-700 font-semibold mb-1"
           >
-            Time of Birth:
+            Time of Birth (HH:MM:SS):
           </label>
           <input
             id="tob"
             type="time"
+            step="1" // Enables seconds in many browsers
             value={tob}
             onChange={(e) => setTob(e.target.value)}
             required
