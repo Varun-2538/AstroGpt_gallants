@@ -7,7 +7,7 @@ function App() {
 
   return (
     <>
-      <div className="bg-orange-300 min-h-screen w-full">
+      <div className="bg-white min-h-screen w-full">
         {/* Pass setResult to Homepage so AstrologyForm can update it */}
         <Homepage setResult={setResult} />
         <section className="min-h-screen w-full bg-orange-500">

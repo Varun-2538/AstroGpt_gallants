@@ -1,3 +1,4 @@
+
 import React from "react";
 
 const TraditionalChart = ({ result }) => {
@@ -71,3 +72,4 @@ const TraditionalChart = ({ result }) => {
 };
 
 export default TraditionalChart;
+

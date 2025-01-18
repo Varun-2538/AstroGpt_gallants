@@ -11,7 +11,7 @@ function NavBar() {
   return (
     <nav
       className="
-        bg-orange-500 text-white 
+        bg-white text-black 
         w-9/12 xl:w-11/12 2xl:w-9/12 
         z-50 h-16
         rounded-[60px] px-6 py-4 xl:py-2 

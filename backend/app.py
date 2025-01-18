@@ -3,9 +3,44 @@ from flask_cors import CORS
 import math
 from datetime import datetime, timedelta
 import swisseph as swe
+import logging
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderUnavailable
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all origins
+# Configure CORS properly
+CORS(app, resources={
+    r"/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
+
+def get_coordinates(city, state):
+    """
+    Get latitude and longitude coordinates for a given city and state.
+    """
+    try:
+        geolocator = Nominatim(user_agent="vedic_kundali_app")
+        location = geolocator.geocode(f"{city}, {state}")
+        
+        if location is None:
+            raise ValueError(f"Unable to find coordinates for {city}, {state}")
+            
+        logger.info(f"Retrieved coordinates for {city}, {state}: {location.latitude}, {location.longitude}")
+        return location.latitude, location.longitude
+        
+    except (GeocoderTimedOut, GeocoderUnavailable) as e:
+        logger.error(f"Geocoding error: {str(e)}")
+        raise ValueError(f"Unable to geocode location: {str(e)}")
 
 class VedicKundali:
     def __init__(self):
@@ -44,6 +79,7 @@ class VedicKundali:
             12: "Losses, Liberation, Foreign lands"
         }
 
+    # [Previous methods remain the same]
     def calculate_julian_day(self, date, time_, tz_offset=5.5):
         dt_local = datetime.combine(date, time_)
         delta = timedelta(hours=int(tz_offset), minutes=int((tz_offset % 1) * 60))
@@ -67,6 +103,10 @@ class VedicKundali:
             "degrees": degrees,
             "rashi_number": rashi_index + 1
         }
+
+    def get_moon_longitude(self, julian_day):
+        moon_calc, _ = swe.calc_ut(julian_day, swe.MOON, swe.FLG_SIDEREAL)
+        return moon_calc[0]
 
     def calculate_ascendant(self, julian_day, latitude, longitude):
         swe.set_topo(latitude, longitude, 0)
@@ -96,12 +136,59 @@ class VedicKundali:
             house_positions[planet] = self.find_house(pl_long, asc_long)
         return house_positions
 
+    def calculate_vimshottari_dasha(self, moon_longitude, birth_date):
+        # [Method implementation remains the same]
+        nakshatras = [
+            ("Ketu", 7), ("Venus", 20), ("Sun", 6), ("Moon", 10), ("Mars", 7),
+            ("Rahu", 18), ("Jupiter", 16), ("Saturn", 19), ("Mercury", 17)
+        ]
+        nakshatra_degrees = 360 / 27
+        nakshatra_index = int(moon_longitude // nakshatra_degrees) % 27
+        nakshatra_start = nakshatra_index * nakshatra_degrees
+        nakshatra_position = (moon_longitude - nakshatra_start) / nakshatra_degrees
+        
+        remaining_years = nakshatras[nakshatra_index % len(nakshatras)][1] * (1 - nakshatra_position)
+        
+        dasha_sequence = []
+        current_date = birth_date
+        
+        logger.info(f"\n{'='*50}")
+        logger.info(f"Birth Moon Longitude: {moon_longitude:.2f}°")
+        logger.info(f"Nakshatra Index: {nakshatra_index}")
+        logger.info(f"Position in Nakshatra: {nakshatra_position:.2%}")
+        logger.info(f"{'='*50}")
+        logger.info("\nVIMSHOTTARI MAHA DASHA SEQUENCE:")
+        logger.info(f"{'='*50}")
+        logger.info(f"{'Lord':<10} {'Start Date':<12} {'End Date':<12} {'Duration (Years)':<15}")
+        logger.info(f"{'-'*50}")
+        
+        for i in range(len(nakshatras)):
+            lord, full_years = nakshatras[(nakshatra_index + i) % len(nakshatras)]
+            dasha_years = remaining_years if i == 0 else full_years
+            dasha_end_date = current_date + timedelta(days=dasha_years * 365.25)
+            
+            logger.info(f"{lord:<10} {current_date.strftime('%Y-%m-%d'):<12} "
+                       f"{dasha_end_date.strftime('%Y-%m-%d'):<12} {dasha_years:>14.2f}")
+            
+            dasha_sequence.append({
+                "lord": lord,
+                "start_date": current_date.strftime("%Y-%m-%d"),
+                "end_date": dasha_end_date.strftime("%Y-%m-%d"),
+                "duration": round(dasha_years, 2)
+            })
+            current_date = dasha_end_date
+            remaining_years = 0
+        
+        logger.info(f"{'='*50}\n")
+        return dasha_sequence
+
     def generate_complete_kundali(self, birth_date, birth_time, latitude, longitude, tz_offset=5.5):
+        # [Method implementation remains the same]
         julian_day = self.calculate_julian_day(birth_date, birth_time, tz_offset)
         ascendant = self.calculate_ascendant(julian_day, latitude, longitude)
         planet_positions = {name: self.get_planet_position(julian_day, pid) for pid, name in self.planets.items()}
+        moon_longitude = self.get_moon_longitude(julian_day)
 
-        # Add Ketu (180° opposite to Rahu)
         rahu_long = planet_positions["Rahu"]["longitude"]
         ketu_long = (rahu_long + 180) % 360
         ketu_rashi_index = int(ketu_long // 30)
@@ -114,12 +201,14 @@ class VedicKundali:
 
         planet_house_positions = self.determine_house_positions(planet_positions, ascendant)
 
-        # Calculate Rashi for each house
         house_rashis = {}
         for house in range(1, 13):
             house_longitude = (ascendant["longitude"] + (house - 1) * 30) % 360
             rashi_index = int(house_longitude // 30)
             house_rashis[house] = self.rashis[rashi_index]
+
+        birth_datetime = datetime.combine(birth_date, birth_time)
+        dasha_sequence = self.calculate_vimshottari_dasha(moon_longitude, birth_datetime)
 
         kundali = {
             "birth_details": {
@@ -137,41 +226,83 @@ class VedicKundali:
                     "significance": self.house_significations[house]
                 } for planet, house in planet_house_positions.items()
             },
-            "house_rashis": house_rashis  # Include Rashi names for all houses
+            "house_rashis": house_rashis,
+            "vimshottari_dasha": dasha_sequence
         }
         return kundali
 
-
-@app.route("/", methods=["POST"])
+@app.route("/", methods=["POST", "OPTIONS"])
+@app.route("/calculate", methods=["POST", "OPTIONS"])
 def calculate_kundali():
+    if request.method == "OPTIONS":
+        response = app.make_default_options_response()
+        response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+        return response
+
     try:
         data = request.json
         name = data.get("name")
+        city = data.get("city")
+        state = data.get("state")
+        
+        if not city or not state:
+            return jsonify({"error": "City and state are required"}), 400
+            
         date_of_birth = datetime.strptime(data.get("dateOfBirth"), "%Y-%m-%d").date()
         time_of_birth_str = data.get("timeOfBirth")
         
-        # Handle time format (HH:MM or HH:MM:SS)
-        if len(time_of_birth_str) == 5:  # HH:MM
+        logger.info(f"\nNew Kundali Calculation Request:")
+        logger.info(f"Name: {name}")
+        logger.info(f"City: {city}")
+        logger.info(f"State: {state}")
+        logger.info(f"Date of Birth: {date_of_birth}")
+        logger.info(f"Time of Birth: {time_of_birth_str}")
+        
+        if len(time_of_birth_str) == 5:
             time_of_birth = datetime.strptime(time_of_birth_str, "%H:%M").time()
-        elif len(time_of_birth_str) == 8:  # HH:MM:SS
+        elif len(time_of_birth_str) == 8:
             time_of_birth = datetime.strptime(time_of_birth_str, "%H:%M:%S").time()
         else:
             return jsonify({"error": "Invalid time format. Use HH:MM or HH:MM:SS"}), 400
 
-        latitude = float(data.get("latitude"))
-        longitude = float(data.get("longitude"))
-        tz_offset = 5.5
+        # Get coordinates from city and state
+        try:
+            latitude, longitude = get_coordinates(city, state)
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+
+        tz_offset = 5.64  # Indian Standard Time
 
         calculator = VedicKundali()
-        kundali = calculator.generate_complete_kundali(date_of_birth, time_of_birth, latitude, longitude, tz_offset)
+        kundali = calculator.generate_complete_kundali(
+            date_of_birth, 
+            time_of_birth, 
+            latitude, 
+            longitude, 
+            tz_offset
+        )
 
-        return jsonify({
+        response = jsonify({
             "name": name,
+            "location": {
+                "city": city,
+                "state": state,
+                "latitude": latitude,
+                "longitude": longitude
+            },
             "kundali": kundali
         })
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        logger.info("Kundali calculation completed successfully\n")
+        return response
 
+    except Exception as e:
+        logger.error(f"Error calculating kundali: {str(e)}")
+        error_response = jsonify({"error": str(e)})
+        error_response.headers.add('Access-Control-Allow-Origin', '*')
+        return error_response, 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
