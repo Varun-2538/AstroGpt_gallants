@@ -2,15 +2,14 @@ import React from "react";
 import AstrologyForm from "./AstrologyForm";
 import NavBar from "./Navbar";
 
-const Homepage = () => {
+const Homepage = ({ setResult }) => {
   return (
     <>
-      {/* Orange background for the whole section */}
       <div className="bg-orange-300 min-h-screen w-full flex flex-col">
-        {/* Your NavBar at the top */}
+        {/* NavBar */}
         <NavBar />
 
-        {/* Main content: 2 columns on medium screens and up */}
+        {/* Main content */}
         <div className="mt-16 flex-1 grid grid-cols-1 md:grid-cols-2">
           {/* Left Column (Background image + text) */}
           <div className="flex items-center justify-center">
@@ -22,7 +21,6 @@ const Homepage = () => {
                 flex flex-col items-center justify-center
               "
             >
-              {/* Headings displayed over the background image */}
               <h1 className="text-4xl font-serif font-medium text-white mb-2">
                 Lorem ipsum dolor sit
               </h1>
@@ -34,7 +32,8 @@ const Homepage = () => {
 
           {/* Right Column (AstrologyForm) */}
           <div className="flex items-center justify-center p-4">
-            <AstrologyForm />
+            {/* Pass setResult to AstrologyForm */}
+            <AstrologyForm setResult={setResult} />
           </div>
         </div>
       </div>
