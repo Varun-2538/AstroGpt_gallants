@@ -1,6 +1,6 @@
-import React from "react";
+
 import AstrologyForm from "./AstrologyForm";
-import NavBar from "./NavBar";
+import NavBar from "./Navbar.jsx";
 
 const Homepage = ({ setResult, setSummaryText }) => {
   return (
