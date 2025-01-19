@@ -69,7 +69,7 @@ function App() {
                     onClick={handleCopy}
                     className="mt-4 w-full bg-teal-600 text-white py-2 rounded-lg shadow-lg hover:bg-teal-700 transition-all"
                   >
-                    Copy Analysis Summary
+                    Copy Analysis Summary and paste in chat bot
                   </button>
                 )}
               </div>
