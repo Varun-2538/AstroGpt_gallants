@@ -2,6 +2,7 @@ import { useState } from "react";
 import Homepage from "./components/Homepage";
 import TraditionalChart from "./components/TraditionalChart";
 import Analysis from "./components/analysis";
+import HoroscopeApp from "./components/HoroscopeApp";
 
 function App() {
   const [result, setResult] = useState(null);
@@ -59,6 +60,7 @@ function App() {
         </section>
       )}
         <Analysis />
+        <HoroscopeApp />
       </div>
   );
 }
