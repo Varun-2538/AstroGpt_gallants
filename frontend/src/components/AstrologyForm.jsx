@@ -24,7 +24,7 @@ const AstrologyForm = ({ setResult, setSummaryText }) => {
 
     try {
       // Fetch Kundali Data
-      const response = await fetch("https://astrogpt-gallants.onrender.com", {
+      const response = await fetch("https://astrogpt-gallants.onrender.com:5000", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -40,7 +40,7 @@ const AstrologyForm = ({ setResult, setSummaryText }) => {
       setResult(data.kundali); // Update Kundali result in parent state
 
       // Fetch Additional Analysis
-      const calculateResponse = await fetch("https://astrogpt-gallants.onrender.com/calculate", {
+      const calculateResponse = await fetch("https://astrogpt-gallants.onrender.com:5000/calculate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
