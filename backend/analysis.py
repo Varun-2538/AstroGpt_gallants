@@ -1,103 +1,122 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import requests
+import argparse
 import json
-import os
-from dotenv import load_dotenv
+from argparse import RawTextHelpFormatter
+import requests
+from typing import Optional
+import warnings
 
-# Load environment variables
-load_dotenv()
+# Optional file upload helper (requires langflow)
+try:
+    from langflow.load import upload_file
+except ImportError:
+    warnings.warn("Langflow provides a function to help you upload files to the flow. Please install langflow to use it.")
+    upload_file = None
 
-# Flask app setup
-app = Flask(__name__)
-CORS(app)
-
-# Langflow configuration
+# Configuration
 BASE_API_URL = "https://api.langflow.astra.datastax.com"
-LANGFLOW_ID = os.getenv('LANGFLOW_ID')
-FLOW_ID = os.getenv('FLOW_ID')
-APPLICATION_TOKEN = os.getenv('APPLICATION_TOKEN')
+LANGFLOW_ID = "13d2661b-1cac-469c-a004-3df3ec5a3da7"
+FLOW_ID = "f35a2497-666e-479d-879e-29b1817f5916"
+APPLICATION_TOKEN = "AstraCS:ReHMyrqyATrjxuKwRdQuHpdu:9f90ff548e2390e505c74ace5471b0c9fa480289dfb3e29a1935c7ec739bc84a"
+ENDPOINT = ""  # Specify the endpoint name in flow settings if required
 
-# Validate required environment variables
-required_env_vars = ['LANGFLOW_ID', 'FLOW_ID', 'APPLICATION_TOKEN']
-missing_vars = [var for var in required_env_vars if not os.getenv(var)]
-if missing_vars:
-    raise EnvironmentError(f"Missing required environment variables: {', '.join(missing_vars)}")
-
+# Default tweaks
 TWEAKS = {
-    "ChatInput-H4yRa": {},
-    "ParseData-67Big": {},
-    "Prompt-Rwqkl": {},
-    "SplitText-1Qvd7": {},
-    "OpenAIModel-h16gt": {},
-    "ChatOutput-aVYDO": {},
-    "AstraDB-4Vo6G": {},
-    "OpenAIEmbeddings-34uTS": {},
-    "AstraDB-AeLsd": {},
-    "OpenAIEmbeddings-5ECcb": {},
-    "File-7A7RK": {}
+    "ParseData-0gmwq": {},
+    "Prompt-oUvL5": {},
+    "SplitText-XnWhn": {},
+    "OpenAIModel-lWy6T": {},
+    "ChatOutput-SWqbK": {},
+    "AstraDB-WDBUA": {},
+    "OpenAIEmbeddings-dy4fm": {},
+    "AstraDB-g5gxZ": {},
+    "OpenAIEmbeddings-IUM4B": {},
+    "File-DZQuH": {},
+    "TextInput-w1RfG": {}
 }
 
-def run_flow(message: str, endpoint: str, tweaks: dict) -> dict:
+def run_flow(
+    message: str,
+    endpoint: str,
+    output_type: str = "text",
+    input_type: str = "text",
+    tweaks: Optional[dict] = None,
+    application_token: Optional[str] = None
+) -> dict:
     """
-    Run the Langflow API with a given message and optional tweaks.
+    Run a flow with the given message and optional tweaks.
+
+    :param message: The message to send to the flow
+    :param endpoint: The ID or endpoint name of the flow
+    :param tweaks: Optional tweaks to customize the flow
+    :param application_token: The application token for authentication
+    :return: The JSON response from the flow
     """
     api_url = f"{BASE_API_URL}/lf/{LANGFLOW_ID}/api/v1/run/{endpoint}"
 
     payload = {
         "input_value": message,
-        "output_type": "chat",
-        "input_type": "chat",
-        "tweaks": tweaks,
+        "output_type": output_type,
+        "input_type": input_type,
     }
-    headers = {
-        "Authorization": f"Bearer {APPLICATION_TOKEN}",
-        "Content-Type": "application/json",
-    }
+    if tweaks:
+        payload["tweaks"] = tweaks
+
+    headers = {"Authorization": f"Bearer {application_token}", "Content-Type": "application/json"} if application_token else {}
 
     response = requests.post(api_url, json=payload, headers=headers)
 
-    # Handle errors gracefully
     if response.status_code != 200:
-        return {"error": "Langflow API request failed", "details": response.text}
+        return {"error": "API request failed", "details": response.text}
 
     return response.json()
 
-@app.route("/api/chat", methods=["POST"])
-def chat():
-    """
-    Chat endpoint for handling messages from the frontend.
-    """
+def main():
+    parser = argparse.ArgumentParser(
+        description="""Run a flow with the given message and optional tweaks.
+Example usage:
+python <script_name>.py "your message" --endpoint "your_endpoint" --tweaks '{"key": "value"}'
+""",
+        formatter_class=RawTextHelpFormatter
+    )
+    parser.add_argument("message", type=str, help="The message to send to the flow")
+    parser.add_argument("--endpoint", type=str, default=ENDPOINT or FLOW_ID, help="The ID or endpoint name of the flow")
+    parser.add_argument("--tweaks", type=str, default=json.dumps(TWEAKS), help="JSON string representing the tweaks")
+    parser.add_argument("--application_token", type=str, default=APPLICATION_TOKEN, help="Application token for authentication")
+    parser.add_argument("--output_type", type=str, default="text", help="The output type (default: text)")
+    parser.add_argument("--input_type", type=str, default="text", help="The input type (default: text)")
+    parser.add_argument("--upload_file", type=str, help="Path to the file to upload", default=None)
+    parser.add_argument("--components", type=str, help="Components for uploading the file", default=None)
+
+    args = parser.parse_args()
+
     try:
-        data = request.json
-        message = data.get("message", "").strip()
-        if not message:
-            return jsonify({"error": "Message is required"}), 400
+        tweaks = json.loads(args.tweaks)
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON format for tweaks")
 
-        print(f"Received message: {message}")
+    if args.upload_file:
+        if not upload_file:
+            raise ImportError("Langflow is not installed. Install it to use the upload_file function.")
+        elif not args.components:
+            raise ValueError("Provide the components for uploading the file.")
+        tweaks = upload_file(
+            file_path=args.upload_file,
+            host=BASE_API_URL,
+            flow_id=args.endpoint,
+            components=args.components,
+            tweaks=tweaks
+        )
 
-        # Run the flow with the given message
-        response = run_flow(message=message, endpoint=FLOW_ID, tweaks=TWEAKS)
+    response = run_flow(
+        message=args.message,
+        endpoint=args.endpoint,
+        output_type=args.output_type,
+        input_type=args.input_type,
+        tweaks=tweaks,
+        application_token=args.application_token
+    )
 
-        # Log response
-        print(f"Langflow API response: {response}")
+    print(json.dumps(response, indent=2))
 
-        if "error" in response:
-            return jsonify({"error": response["error"], "details": response.get("details", "")}), 500
-
-        # Extract chatbot's reply
-        outputs = response.get("outputs", [])
-        if outputs:
-            # Correctly extract the chatbot response
-            chatbot_response = outputs[0]["outputs"][0]["results"]["message"]["text"]
-            return jsonify({"message": chatbot_response}), 200
-
-        return jsonify({"error": "No response from Langflow API"}), 500
-
-    except Exception as e:
-        print(f"Error: {e}")
-        return jsonify({"error": str(e)}), 500
-
-# Run the Flask app
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    main()
