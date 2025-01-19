@@ -1,16 +1,17 @@
+
 import React, { useState } from 'react';
-import aries from './assets/aries.webp';
-import taurus from './assets/taurus.webp';
-import gemini from './assets/gemini.webp';
-import cancer from './assets/cancer.webp';
-import leo from './assets/leo.webp';
-import virgo from './assets/virgo.webp';
-import libra from './assets/libra.webp';
-import scorpio from './assets/scorpio.webp';
-import sagittarius from './assets/sagittarius.webp';
-import capricorn from './assets/capricorn.webp';
-import aquarius from './assets/aquarius.webp';
-import pisces from './assets/pisces.webp';
+// import aries from "../assets/aries.webp";
+// import taurus from "../assets/taurus.webp";
+// import gemini from "../assets/gemini.webp";
+// import cancer from "../assets/cancer.webp";
+// import leo from '../assets/leo.webp';
+// import virgo from '../assets/virgo.webp';
+// import libra from '../assets/libra.webp';
+// import scorpio from '../assets/scorpio.webp';
+// import sagittarius from '../assets/sagittarius.webp';
+// import capricorn from '../assets/capricorn.webp';
+// import aquarius from '../assets/aquarius.webp';
+// import pisces from '../assets/pisces.webp';
 
 
 const HoroscopeApp = () => {
@@ -18,18 +19,18 @@ const HoroscopeApp = () => {
   const [horoscopeType, setHoroscopeType] = useState('daily');
 
   const rashis = [
-    { name: 'Aries', value: 'aries', logo: aries },
-    { name: 'Taurus', value: 'taurus', logo: taurus },
-    { name: 'Gemini', value: 'gemini', logo: gemini },
-    { name: 'Cancer', value: 'cancer', logo: cancer },
-    { name: 'Leo', value: 'leo', logo: leo },
-    { name: 'Virgo', value: 'virgo', logo: virgo },
-    { name: 'Libra', value: 'libra', logo: libra},
-    { name: 'Scorpio', value: 'scorpio', logo: scorpio },
-    { name: 'Sagittarius', value: 'sagittarius', logo: sagittarius },
-    { name: 'Capricorn', value: 'capricorn', logo: capricorn },
-    { name: 'Aquarius', value: 'aquarius', logo: aquarius },
-    { name: 'Pisces', value: 'pisces', logo: pisces },
+    { name: 'Aries', value: 'aries', logo: "" },
+    { name: 'Taurus', value: 'taurus', logo: "" },
+    { name: 'Gemini', value: 'gemini', logo: "" },
+    { name: 'Cancer', value: 'cancer', logo: "" },
+    { name: 'Leo', value: 'leo', logo: "" },
+    { name: 'Virgo', value: 'virgo', logo: "" },
+    { name: 'Libra', value: 'libra', logo: ""},
+    { name: 'Scorpio', value: 'scorpio', logo: ""},
+    { name: 'Sagittarius', value: 'sagittarius', logo: "" },
+    { name: 'Capricorn', value: 'capricorn', logo: "" },
+    { name: 'Aquarius', value: 'aquarius', logo: ""},
+    { name: 'Pisces', value: 'pisces', logo:  ""},
   ];
 
   const horoscopes = {
@@ -194,13 +195,13 @@ const HoroscopeApp = () => {
   const currentRashi = rashis.find((rashi) => rashi.value === selectedRashi);
 
   return (
-    <div className="flex flex-col items-center p-4">
-      <h1 className="text-2xl font-bold mb-4">Horoscope</h1>
-      <div className="flex space-x-4 mb-4">
+    <div className="flex flex-col items-center p-4 bg-light-cream min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Horoscope</h1>
+      <div className="flex space-x-4 mb-6">
         <select
           value={selectedRashi}
           onChange={handleRashiChange}
-          className="p-2 border rounded"
+          className="p-2 border rounded shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           <option value="">Select Rashi</option>
           {rashis.map((rashi) => (
@@ -212,41 +213,47 @@ const HoroscopeApp = () => {
         <select
           value={horoscopeType}
           onChange={handleHoroscopeTypeChange}
-          className="p-2 border rounded"
+          className="p-2 border rounded shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
           <option value="daily">Daily</option>
           <option value="monthly">Monthly</option>
         </select>
       </div>
-      {currentHoroscope && currentRashi && (
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg overflow-hidden">
-          <div className="flex items-center p-4 bg-gray-100">
-            <img
-              src={currentRashi.logo}
-              alt={`${currentRashi.name} logo`}
-              className="w-12 h-12 mr-4"
-            />
-            <h2 className="text-xl font-semibold">{currentRashi.name}</h2>
-          </div>
-          <div className="p-4">
-            <h3 className="text-lg font-medium mb-2">
-              {horoscopeType.charAt(0).toUpperCase() + horoscopeType.slice(1)}{' '}
-              Horoscope
-            </h3>
-            <div className="mb-2">
-              <strong>Love:</strong> {currentHoroscope.love}
-            </div>
-            <div className="mb-2">
-              <strong>Money:</strong> {currentHoroscope.money}
-            </div>
-            <div className="mb-2">
-              <strong>Health:</strong> {currentHoroscope.health}
-            </div>
+      <div className="max-w-md w-full bg-gradient-to-br from-white to-blue-100 shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+        <div className="p-6">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4 text-center">
+            {selectedRashi ? currentRashi.name : 'Welcome to Horoscope'}
+          </h2>
+          <h3 className="text-lg font-medium text-gray-700 mb-4 text-center">
+            {selectedRashi
+              ? `${horoscopeType.charAt(0).toUpperCase() + horoscopeType.slice(1)} Horoscope`
+              : 'Select a Rashi to view details'}
+          </h3>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            {selectedRashi ? (
+              <>
+                <p className="mb-2">
+                  <strong className="text-blue-800">Love:</strong> {currentHoroscope.love}
+                </p>
+                <p className="mb-2">
+                  <strong className="text-blue-800">Money:</strong> {currentHoroscope.money}
+                </p>
+                <p>
+                  <strong className="text-blue-800">Health:</strong> {currentHoroscope.health}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="mb-4">Select a Rashi and horoscope type to view personalized details!</p>
+                <p className="text-gray-600 italic">Tip: Start by choosing Aries or Taurus!</p>
+              </>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
 export default HoroscopeApp;
+

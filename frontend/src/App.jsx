@@ -2,6 +2,9 @@ import { useState } from "react";
 import Homepage from "./components/Homepage";
 import TraditionalChart from "./components/TraditionalChart";
 import Analysis from "./components/Analysis";
+import HoroscopeApp from "./components/HoroscopeApp";
+import Meditation from "./components/Meditation";
+import GemstoneRecommendation from "./components/GemstoneRecommendation";
 
 function App() {
   const [result, setResult] = useState(null); // Stores result from Homepage
@@ -77,6 +80,34 @@ function App() {
 
       {/* Analysis Component */}
       <Analysis initialMessage={summaryText} />
+
+      {/* Horoscope and Meditation Components in a Single Row */}
+      <section className="mt-12 px-8 py-12">
+        <div className="container mx-auto flex flex-row gap-8 justify-evenly bg-[#FBF5DD] rounded-xl p-6 shadow-lg">
+          {/* Horoscope App */}
+          <div className="flex-1 bg-[#FBF5DD] rounded-xl p-6 shadow">
+            <h2 className="text-2xl font-bold text-purple-600 mb-4 text-center">
+              Horoscope App
+            </h2>
+            <HoroscopeApp />
+          </div>
+
+          {/* Meditation App */}
+          <div className="flex-1 bg-[#FBF5DD] rounded-xl p-6 shadow">
+            <h2 className="text-2xl font-bold text-blue-600 mb-4 text-center">
+              Meditation App
+            </h2>
+            <Meditation />
+          </div>
+        </div>
+      </section>
+
+      {/* Gemstone Recommendation */}
+      <section className="mt-8 px-8 py-12">
+        <div className="bg-[#FBF5DD] rounded-xl p-6 shadow-lg">
+          <GemstoneRecommendation />
+        </div>
+      </section>
     </div>
   );
 }
