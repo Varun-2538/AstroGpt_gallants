@@ -1,3 +1,7 @@
+Here’s the updated **README.md** with the additional instruction to run `python analysis.py` for Python-based analysis:
+
+---
+
 # Kundali Analysis and Remedies using AI and Swiss Ephemeris
 
 ## 🚀 Project Overview
@@ -83,10 +87,13 @@ The AI takes birth details, planetary placements, and house information to analy
 2. **Kundali Generation**:
    - Swiss Ephemeris calculates planetary positions, Rashis, and houses based on the input.
 
-3. **AI-Driven Analysis**:
+3. **Python-Based Analysis**:
+   - Run `python analysis.py` to process and analyze the generated Kundali.
+
+4. **AI-Driven Analysis**:
    - The contextual AI performs house-by-house analysis and generates actionable insights, including remedies and lifestyle changes.
 
-4. **Frontend Display**:
+5. **Frontend Display**:
    - The Kundali and analysis are displayed interactively using React, with options to explore Vimshottari Dasha, remedies, and more.
 
 ---
@@ -117,7 +124,12 @@ The AI takes birth details, planetary placements, and house information to analy
      npm install
      ```
 
-3. **Run the Project**:
+3. **Run Python Analysis**:
+   ```bash
+   python analysis.py
+   ```
+
+4. **Run the Project**:
    - Backend:
      ```bash
      python app.py
@@ -127,7 +139,7 @@ The AI takes birth details, planetary placements, and house information to analy
      npm run dev
      ```
 
-4. **Access the Application**:
+5. **Access the Application**:
    Open your browser and navigate to `http://localhost:5173`.
 
 ---
@@ -138,6 +150,7 @@ The AI takes birth details, planetary placements, and house information to analy
 kundali-analysis/
 ├── backend/
 │   ├── app.py               # Flask backend
+│   ├── analysis.py          # Python analysis script
 │   ├── utils/               # Utility functions for calculations
 │   └── data/                # JSON files for planets, houses, remedies, etc.
 ├── frontend/
