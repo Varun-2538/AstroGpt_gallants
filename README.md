@@ -149,17 +149,29 @@ The AI takes birth details, planetary placements, and house information to analy
 ```
 kundali-analysis/
 ├── backend/
-│   ├── app.py               # Flask backend
-│   ├── analysis.py          # Python analysis script
-│   ├── utils/               # Utility functions for calculations
-│   └── data/                # JSON files for planets, houses, remedies, etc.
+│   ├── .gitignore
+│   ├── analysis.py         # Python script for performing astrological analysis
+│   ├── app.py              # Flask app for backend API
+│   ├── package-lock.json   # Lock file for backend dependencies
+│   ├── package.json        # Node.js backend dependencies
+│   ├── server.js           # JavaScript server logic (if applicable)
+│   ├── test.py             # Python test script
+│   ├── data/               # Folder containing JSON files for astrological data
+│   │   └── (JSON files)    # Rashi, planets, numerology, remedies, etc.
 ├── frontend/
-│   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── assets/          # Static assets
-│   │   └── App.jsx          # Main React app
-│   └── vite.config.js       # Vite configuration
-└── README.md                # Project documentation
+│   ├── public/             # Public assets for the frontend
+│   ├── src/                # Source code for the frontend
+│   │   ├── .gitignore
+│   │   ├── README.md       # Frontend-specific documentation
+│   │   ├── eslint.config.js # ESLint configuration for linting
+│   │   ├── index.html      # Main HTML file for the app
+│   │   ├── package-lock.json # Lock file for frontend dependencies
+│   │   ├── package.json    # Frontend dependencies
+│   │   ├── postcss.config.js # PostCSS configuration
+│   │   ├── tailwind.config.cjs # Tailwind CSS configuration
+│   │   └── vite.config.js  # Vite configuration for the frontend
+├── README.md               # Main project documentation
+
 ```
 
 ---
