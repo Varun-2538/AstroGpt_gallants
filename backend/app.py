@@ -230,6 +230,8 @@ class VedicKundali:
             "vimshottari_dasha": dasha_sequence
         }
         return kundali
+   
+
 
 @app.route("/", methods=["POST", "OPTIONS"])
 @app.route("/calculate", methods=["POST", "OPTIONS"])
@@ -245,20 +247,13 @@ def calculate_kundali():
         name = data.get("name")
         city = data.get("city")
         state = data.get("state")
-        
+
         if not city or not state:
             return jsonify({"error": "City and state are required"}), 400
-            
+
         date_of_birth = datetime.strptime(data.get("dateOfBirth"), "%Y-%m-%d").date()
         time_of_birth_str = data.get("timeOfBirth")
-        
-        logger.info(f"\nNew Kundali Calculation Request:")
-        logger.info(f"Name: {name}")
-        logger.info(f"City: {city}")
-        logger.info(f"State: {state}")
-        logger.info(f"Date of Birth: {date_of_birth}")
-        logger.info(f"Time of Birth: {time_of_birth_str}")
-        
+
         if len(time_of_birth_str) == 5:
             time_of_birth = datetime.strptime(time_of_birth_str, "%H:%M").time()
         elif len(time_of_birth_str) == 8:
@@ -283,6 +278,9 @@ def calculate_kundali():
             tz_offset
         )
 
+        # Generate text summary
+        kundali_summary = format_kundali_summary(kundali)
+
         response = jsonify({
             "name": name,
             "location": {
@@ -291,9 +289,10 @@ def calculate_kundali():
                 "latitude": latitude,
                 "longitude": longitude
             },
-            "kundali": kundali
+            "kundali": kundali,
+            "summary_text": kundali_summary  # Include text summary in response
         })
-        
+
         response.headers.add('Access-Control-Allow-Origin', '*')
         logger.info("Kundali calculation completed successfully\n")
         return response
@@ -303,6 +302,38 @@ def calculate_kundali():
         error_response = jsonify({"error": str(e)})
         error_response.headers.add('Access-Control-Allow-Origin', '*')
         return error_response, 500
+    
+def format_kundali_summary(kundali):
+    
+        summary = []
+
+        # Add Birth Details
+        birth_details = kundali['birth_details']
+        summary.append("=== Kundali Summary ===")
+        summary.append(f"Date of Birth: {birth_details['date']}")
+        summary.append(f"Time of Birth: {birth_details['time']}")
+        summary.append(f"Location: {birth_details['latitude']}, {birth_details['longitude']} (TZ Offset: {birth_details['tz_offset']})")
+        summary.append("\n=== Ascendant ===")
+        ascendant = kundali['ascendant']
+        summary.append(f"Rashi: {ascendant['rashi']} ({ascendant['rashi_number']})")
+        summary.append(f"Degrees: {ascendant['degrees']:.2f}\n")
+
+        # Add Planets' Details
+        summary.append("=== Planets ===")
+        for planet, details in kundali['planets'].items():
+            summary.append(f"{planet}: Rashi: {details['rashi']} ({details['rashi_number']}), Degrees: {details['degrees']:.2f}")
+
+        # Add Planets' House Positions
+        summary.append("\n=== Planet House Positions ===")
+        for planet, house_details in kundali['planet_house_positions'].items():
+            summary.append(f"{planet}: House {house_details['house']} ({house_details['significance']})")
+
+        # Add Vimshottari Dasha Details
+        summary.append("\n=== Vimshottari Dasha ===")
+        for dasha in kundali['vimshottari_dasha']:
+            summary.append(f"{dasha['lord']}: {dasha['start_date']} to {dasha['end_date']} ({dasha['duration']} years)")
+
+        return "\n".join(summary)
 
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0')
