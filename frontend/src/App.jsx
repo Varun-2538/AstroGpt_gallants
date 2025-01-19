@@ -1,7 +1,8 @@
-  import { useState } from "react";
-  import Homepage from "./components/Homepage";
-  import TraditionalChart from "./components/TraditionalChart";
-  import Analysis from "./components/Analysis";
+import { useState } from "react";
+import Homepage from "./components/Homepage";
+import TraditionalChart from "./components/TraditionalChart";
+import Analysis from "./components/analysis";
+import HoroscopeApp from "./components/HoroscopeApp";
 
   function App() {
     const [result, setResult] = useState(null); // Stores result from Homepage
@@ -72,11 +73,13 @@
                 </div>
               </div>
             </div>
-          </section>
-        )}
+          </div>
 
-        {/* Analysis Component */}
-        <Analysis initialMessage={summaryText} />
+        </div>
+        </section>
+      )}
+        <Analysis />
+        <HoroscopeApp />
       </div>
     );
   }
