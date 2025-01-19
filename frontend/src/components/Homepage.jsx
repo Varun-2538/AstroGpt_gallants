@@ -9,7 +9,7 @@ const Homepage = ({ setResult, setSummaryText }) => {
       <div
         className="
           absolute
-          bg-[url('src/assets/10411845-removebg-preview.png')]
+          bg-[url('https://github.com/Varun-2538/AstroGpt_gallants/blob/main/lol.png')]
           bg-contain bg-center bg-no-repeat
           opacity-75
           w-[80%] h-[50%] md:w-[60%] md:h-[60%]
