@@ -16,7 +16,7 @@ const Analysis = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://127.0.0.1:5001/api/chat", {
+      const response = await axios.post("https://astrogpt-gallants-1.onrender.com/api/chat", {
         message: input,
       });
 
